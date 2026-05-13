@@ -29,7 +29,7 @@ const InvoiceHeader = () => {
             
           >
              Home
-          </Button>
+      </Button>
       </div>
       <div>
         <Segmented

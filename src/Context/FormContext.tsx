@@ -60,10 +60,22 @@ const initialdescription: Description = {
   taxrate: 0,
   additional: "",
 };
+const generateInvoiceNumber = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+
+  return `INV-${year}${month}${day}-${hours}${minutes}${seconds}`;
+};
+
 const initialFormInfo: FormInfo = {
   title: "Invoice",
   logo: "",
-  number: "",
+  number: generateInvoiceNumber(),
   date: "",
   terms: "none",
   notes: "",

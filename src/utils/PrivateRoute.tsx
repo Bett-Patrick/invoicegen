@@ -1,15 +1,19 @@
-
-import { Navigate } from 'react-router-dom';
-//import useAuth from './useAuth'; // Import the useAuth hook from its file
+import { Navigate } from "react-router-dom";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../firebase";
 
 interface PrivateRouteProps {
   children: React.ReactNode;
 }
 
 function PrivateRoute({ children }: PrivateRouteProps) {
-  let auth =  {'token': true };// Use the useAuth hook
+  const [user, loading] = useAuthState(auth);
 
-  return auth ? <>{children}</> : <Navigate to="/login" />;
+  if (loading) {
+    return <div>Loading...</div>; // or spinner
+  }
+
+  return user ? <>{children}</> : <Navigate to="/Login" />;
 }
 
 export default PrivateRoute;

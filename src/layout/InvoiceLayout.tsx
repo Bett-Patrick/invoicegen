@@ -1,13 +1,22 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import InvoiceEdit from "../Pages/InvoiceEdit/InvoiceEdit";
 import { FormContext } from "../Context/FormContext";
 import InvoicePreview from "../Pages/InvoicePreview/InvoicePreview";
 import InvoiceHeader from "./InvoiceHeader";
-//import SideBar from "../components/Sidebar/SideBar";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../firebase";
+import { useNavigate } from "react-router-dom";
 
 const InvoiceLayout = () => {
   const { selectedoptions } = useContext(FormContext);
-  
+  const [user, loading] = useAuthState(auth);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && user) {
+      navigate("/generate-invoice");
+    }
+  }, [user, loading, navigate]);
 
   return (
     <div>

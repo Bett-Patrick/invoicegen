@@ -2,6 +2,8 @@ import HamburgerMenu from "../Navbar/HamburgerMenu/HamburgerMenu";
 import facebook from "../../../assets/images/icon-facebook.svg";
 import twitter from "../../../assets/images/icon-twitter.svg";
 import { useNavigate } from "react-router-dom";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../../../../../firebase";
 
 interface NavbarProps {
   toggleMenu: () => void;
@@ -12,19 +14,49 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ toggleMenu, isMenuOpen }) => {
   const navigate = useNavigate();
+  const [user, loading] = useAuthState(auth);
+
+  const handleLogout = () => {
+    auth.signOut();
+    navigate("/");
+  };
+
+  const authButton = loading ? (
+    <button
+      disabled
+      className="block bg-gray-300 uppercase align-items-center justify-center text-gray-700 font-bold sm:rounded-md sm:text-sm sm:p-1 md:rounded-md md:border-[0.188rem] md:bg-gray-300 md:py-2 md:px-5"
+    >
+      Loading...
+    </button>
+  ) : user ? (
+    <button
+      onClick={handleLogout}
+      className="block bg-red-500 uppercase align-items-center justify-center text-white font-bold border-red-500 transition duration-300 hover:text-red-500 sm:rounded-md sm:text-sm sm:p-1 md:rounded-md md:border-[0.188rem] md:bg-red-600 md:py-2 md:px-5 md:hover:bg-white"
+    >
+      Logout
+    </button>
+  ) : (
+    <button
+      onClick={() => navigate("/Login")}
+      className="block bg-blue-500 uppercase align-items-center justify-center text-white font-bold border-blue-500 transition duration-300 hover:text-blue-500 sm:rounded-md sm:text-sm sm:p-1 md:rounded-md md:border-[0.188rem] md:bg-soft-red md:py-2 md:px-5 md:hover:bg-white"
+    >
+      Login
+    </button>
+  );
+
   return (
     <nav aria-label="Main">
       <HamburgerMenu toggleMenu={toggleMenu} isMenuOpen={isMenuOpen} />
       <ul
         id="navbar-menu"
-        className={`transition-visibility invisible  absolute top-0 left-0 z-40 flex h-full w-full flex-col items-end justify-between bg-very-dark-blue/90 tracking-widest opacity-0 md:visible md:static md:h-auto md:w-auto md:flex-row md:items-end md:justify-start md:gap-[3rem]  md:p-0 md:text-[0.8125rem] md:opacity-100 ${
+        className={`transition-visibility invisible  absolute top-0 left-0 z-40 flex h-full w-full mx-auto flex-col items-end justify-between bg-very-dark-blue/90 tracking-widest opacity-0 md:visible md:static md:h-auto md:w-auto md:flex-row md:items-end md:justify-start md:gap-[3rem]  md:p-0 md:text-[0.8125rem] md:opacity-100 ${
           isMenuOpen ? "!visible px-8 pt-24 pb-8 opacity-100" : ""
         }`}
       >
         <li>
           <a
             href="/features"
-            className="uppercase text-white transition duration-300 hover:text-soft-red md:text-slate-900"
+            className="uppercase text-white transition duration-300 hover:text-blue-500 hover:z-40 hover:font-medium hover:underline md:text-slate-900"
           >
             Features
           </a>
@@ -32,18 +64,23 @@ const Navbar: React.FC<NavbarProps> = ({ toggleMenu, isMenuOpen }) => {
         <li>
           <a
             onClick={() => navigate("/Invoices")}
-            className="uppercase text-white transition duration-300 hover:text-soft-red md:text-slate-900"
+            className="cursor-pointer hover:text-blue-500 hover:z-40 hover:font-medium hover:underline uppercase text-white transition duration-300 hover:text-soft-red md:text-slate-900"
           >
             My Invoices
           </a>
         </li>
+        {user && (
+          <li>
+            <button
+              onClick={() => navigate("/InvoiceLayout")}
+              className="cursor-pointer hover:text-blue-500 hover:z-40 hover:font-medium hover:underline uppercase text-white transition duration-300 hover:text-soft-red md:text-slate-900"
+            >
+              Create Invoice
+            </button>
+          </li>
+        )}
         <li>
-          <button
-            onClick={() => navigate("/Login")}
-            className="block bg-blue-500 uppercase align-items-center justify-center text-white font-bold border-blue-500 transition duration-300 hover:text-blue-500 sm:rounded-md sm:text-sm sm:p-1 md:rounded-md md:border-[0.188rem] md:bg-soft-red md:py-2 md:px-5 md:hover:bg-white"
-          >
-            Login 
-          </button>
+          {authButton}
         </li>
         <li className="md:hidden">
           <ul className="flex items-center gap-8 ">

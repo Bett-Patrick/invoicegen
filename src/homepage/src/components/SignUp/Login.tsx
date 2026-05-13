@@ -1,35 +1,31 @@
-import { useState} from "react";
+import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import Logo from "../../assets/images/invoice-logo.svg";
-//import { useAuthState } from "react-firebase-hooks/auth";
-import { signInWithEmailAndPassword} from 'firebase/auth'
-import {  signInWithGoogle, auth } from "../../../../../firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithGoogle, auth } from "../../../../../firebase";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  //const [user, loading] = useAuthState(auth);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
 
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            // Signed in
-            const user = userCredential.user;
-            navigate("/dashboard")
-            console.log(user);
-        })
-        .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            console.log(errorCode, errorMessage)
-        });
-  }
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate("/generate-invoice");
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Unable to sign in. Please check your credentials.");
+    }
+  };
+
   return (
     <div>
-      <div className="flex flex-col items-center min-h-screen pt-6 sm:justify-center sm:pt-0 bg-gray-50">
+      <div className="flex flex-col items-center min-h-screen pt-4 sm:justify-center sm:pt-0 bg-gray-50">
         <div>
           <a href="/" className="flex items-center justify-center">
             <img
@@ -97,6 +93,9 @@ const Login = () => {
                 Login
               </button>
             </div>
+            {error && (
+              <p className="mt-3 text-sm text-red-600">{error}</p>
+            )}
           </form>
           <div
             onClick={() => navigate("/SignUp")}
