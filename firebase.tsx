@@ -73,6 +73,44 @@ const registerWithEmailAndPassword = async (name:string, email:string,companyNam
     alert((err as Error).message);
   }
 };
+const saveInvoice = async (invoiceData: any) => {
+  try {
+    const docRef = await addDoc(collection(db, "invoices"), invoiceData);
+    return docRef.id;
+  } catch (err) {
+    console.error("Error saving invoice:", err);
+    throw err;
+  }
+};
+const getInvoicesByUser = async (uid: string) => {
+  try {
+    const invoicesQuery = query(collection(db, "invoices"), where("uid", "==", uid));
+    const invoicesSnapshot = await getDocs(invoicesQuery);
+    return invoicesSnapshot.docs.map((doc) => {
+      const data = doc.data() as any;
+      const createdAt = data.createdAt;
+      const createdAtString =
+        createdAt && typeof createdAt === "object"
+          ? createdAt.toDate
+            ? createdAt.toDate().toISOString()
+            : "seconds" in createdAt
+            ? new Date(createdAt.seconds * 1000).toISOString()
+            : String(createdAt)
+          : typeof createdAt === "string"
+          ? createdAt
+          : undefined;
+
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: createdAtString,
+      };
+    });
+  } catch (err) {
+    console.error("Error fetching invoices:", err);
+    throw err;
+  }
+};
 const sendPasswordReset = async (email:string) => {
   try {
     await sendPasswordResetEmail(auth, email);
@@ -91,6 +129,8 @@ export {
   signInWithGoogle,
   logInWithEmailAndPassword,
   registerWithEmailAndPassword,
+  saveInvoice,
+  getInvoicesByUser,
   sendPasswordReset,
   logout,
 };

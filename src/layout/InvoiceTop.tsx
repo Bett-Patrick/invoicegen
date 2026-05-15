@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { Segmented, Button, Space } from "antd";
 import { FormContext } from "../Context/FormContext";
 import { useNavigate } from "react-router-dom";
+import { auth, saveInvoice } from "../../firebase";
 
 const InvoiceTop = () => {
   const {
@@ -10,9 +11,37 @@ const InvoiceTop = () => {
     setSelectedOptions,
     generateinvoicetype,
     setgenerateInvoiceType,
+    fromdata,
+    todata,
+    forminfo,
+    description,
   } = useContext(FormContext);
 
   const navigate = useNavigate();
+
+  const handleSaveInvoice = async () => {
+    if (!auth.currentUser) {
+      navigate("/Login");
+      return;
+    }
+
+    const invoiceData = {
+      uid: auth.currentUser.uid,
+      fromdata,
+      todata,
+      forminfo,
+      description,
+      status: "Pending",
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      await saveInvoice(invoiceData);
+      alert("Invoice saved successfully.");
+    } catch (error) {
+      alert("Unable to save invoice. Check console for details.");
+    }
+  };
 
   return (
     <div>
@@ -73,7 +102,14 @@ const InvoiceTop = () => {
           >
             PDF
           </Button>
-          
+          <Button
+            size={"large"}
+            type="default"
+            className="flex items-center justify-center border-blue-500 text-blue-500"
+            onClick={handleSaveInvoice}
+          >
+            Save
+          </Button>
         </Space>
       </div>
     </div>
