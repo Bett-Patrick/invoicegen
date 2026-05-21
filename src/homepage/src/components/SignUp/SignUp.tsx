@@ -29,7 +29,7 @@ const SignUp =() => {
               // Signed in
               const user = userCredential.user;
               console.log(user);
-              navigate("/login")
+              navigate("/generate-invoice")
               // ...
           })
           .catch((error) => {
@@ -44,6 +44,7 @@ const SignUp =() => {
     const handleSignInWithGoogle = async () => {
         try {
           await signInWithGoogle();
+          navigate("/generate-invoice");
           console.log("User signed in with Google successfully!");
         } catch (error) {
           console.log("Error signing in with Google:", error);

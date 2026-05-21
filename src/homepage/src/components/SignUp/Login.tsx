@@ -23,6 +23,16 @@ const Login = () => {
     }
   };
 
+  const handleSignInWithGoogle = async () => {
+    try {
+      await signInWithGoogle();
+      navigate("/generate-invoice");
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Unable to sign in with Google.");
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-col items-center min-h-screen pt-4 sm:justify-center sm:pt-0 bg-gray-50">
@@ -114,7 +124,7 @@ const Login = () => {
           <div className="my-6 space-y-2">
             <button
               aria-label="Login with Google"
-              onClick={signInWithGoogle}
+              onClick={handleSignInWithGoogle}
               className="flex items-center justify-center w-full p-2 space-x-4 border rounded-md -2 -offset-1 dark:border-gray-400 -violet-400"
             >
               <svg
