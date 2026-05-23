@@ -9,11 +9,28 @@ const InvoicePreview = () => {
   let number = [0];
   const { forminfo, todata, fromdata, description} = useContext(FormContext);
   number = forminfo?.terms === "none" ? [0] : (forminfo?.terms?.match(/\d+/g) || []).map(Number);
-  console.log(number);
-  const formattedDate = dayjs(forminfo?.date).format("dddd, MMMM DD, YYYY");
-  const formattedDueDate = dayjs(forminfo?.date)
-    .add(+number[0], "day")
-    .format("dddd, MMMM DD, YYYY");
+
+  const normalizeDate = (d: any) => {
+    if (!d) return undefined;
+    if (typeof d === "string") return new Date(d);
+    if (d instanceof Date) return d;
+    if (typeof d === "object") {
+      if (typeof d.toDate === "function") return d.toDate();
+      if ("seconds" in d) return new Date(d.seconds * 1000);
+      try {
+        return new Date(String(d));
+      } catch (e) {
+        return undefined;
+      }
+    }
+    return undefined;
+  };
+
+  const dateValue = normalizeDate(forminfo?.date);
+  const formattedDate = dateValue ? dayjs(dateValue).format("dddd, MMMM DD, YYYY") : null;
+  const formattedDueDate = dateValue
+    ? dayjs(dateValue).add(+number[0], "day").format("dddd, MMMM DD, YYYY")
+    : null;
 
   
 
@@ -125,6 +142,8 @@ const InvoicePreview = () => {
             <p>Sub-total</p>
             <p>Discount</p>
             <p>Total</p>
+            {forminfo?.partialPaidAmount && <p>Amount Paid</p>}
+            {forminfo?.partialPaidAmount && <p>Remaining</p>}
           </div>
         </div>
         <div className="flex  justify-end col-span-3 md:col-span-2">
@@ -132,6 +151,8 @@ const InvoicePreview = () => {
             <p>{forminfo.currency} {forminfo.subTotal?.toLocaleString()}</p>
             <p>{forminfo.currency} {(forminfo.subTotal - forminfo.total)?.toLocaleString()}</p>
             <p className="font-bold">{forminfo.currency} {forminfo.total?.toLocaleString()}</p>
+            {forminfo?.partialPaidAmount && <p className="text-green-600 font-semibold">{forminfo.currency} {forminfo.partialPaidAmount?.toLocaleString()}</p>}
+            {forminfo?.partialPaidAmount && <p className="text-orange-600 font-semibold">{forminfo.currency} {(forminfo.total - forminfo.partialPaidAmount)?.toLocaleString()}</p>}
           </div>
         </div>
       </div>

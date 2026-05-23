@@ -3,22 +3,18 @@ import easyinvoice from "easyinvoice";
 import { useState, useContext } from "react";
 import { FormContext } from "../../../Context/FormContext";
 import dayjs from "dayjs";
-const Download = () => {
+
+export const generateInvoicePdf = async ({ forminfo, todata, fromdata, description }: any) => {
   let number = [0];
-  const [loading, setLoading] = useState(false);
-  const { forminfo, todata, fromdata, description } = useContext(FormContext);
   number =
     forminfo?.terms === "none"
       ? [0]
       : (forminfo?.terms?.match(/\d+/g) || []).map(Number);
-  console.log(number);
   const formattedDate = dayjs(forminfo?.date).format("dddd, MMMM DD, YYYY");
   const formattedDueDate = dayjs(forminfo?.date)
     .add(+number[0], "day")
     .format("dddd, MMMM DD, YYYY");
-  const Download = () => {
-    setLoading(true);
-    var data = {
+  const data = {
       customize: {
         //  "template": fs.readFileSync('template.html', 'base64') // Must be base64 encoded html
       },
@@ -114,15 +110,30 @@ const Download = () => {
       },
     };
 
+  try {
+    // @ts-ignore
+    const result = await easyinvoice.createInvoice(data);
+    // @ts-ignore
+    easyinvoice.download("Invoice.pdf", result.pdf);
+    return true;
+  } catch (error) {
+    console.error("error generating invoice pdf", error);
+    throw error;
+  }
+};
+
+const Download = () => {
+  const [loading, setLoading] = useState(false);
+  const { forminfo, todata, fromdata, description } = useContext(FormContext);
+
+  const handleDownload = async () => {
+    setLoading(true);
     try {
-      //@ts-ignore
-      easyinvoice.createInvoice(data).then((result) => {
-        easyinvoice.download("Invoice.pdf", result.pdf);
-        setLoading(false);
-      });
-    } catch (error) {
-      console.log("error");
+      await generateInvoicePdf({ forminfo, todata, fromdata, description });
+    } catch (err) {
+      console.error(err);
     } finally {
+      setLoading(false);
     }
   };
 
@@ -135,7 +146,7 @@ const Download = () => {
         <Button
           type="primary"
           loading={loading}
-          onClick={Download}
+          onClick={handleDownload}
           className="flex items-center w-full justify-center bg-blue-500 text-white"
         >
           Download

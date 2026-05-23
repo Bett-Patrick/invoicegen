@@ -19,6 +19,7 @@ import {
   doc,
   setDoc,
 } from "firebase/firestore";
+import { updateDoc, serverTimestamp } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBor318JIjOTUZ78dLtVfRWkLsEf7z1ILc",
@@ -86,6 +87,33 @@ const saveInvoice = async (invoiceData: any) => {
     throw err;
   }
 };
+const updateInvoiceStatus = async (invoiceId: string, status: string) => {
+  try {
+    const invoiceRef = doc(db, "invoices", invoiceId);
+    await updateDoc(invoiceRef, {
+      status,
+      updatedAt: serverTimestamp(),
+    });
+    return true;
+  } catch (err) {
+    console.error("Error updating invoice status:", err);
+    throw err;
+  }
+};
+const updateInvoicePartial = async (invoiceId: string, amount: number) => {
+  try {
+    const invoiceRef = doc(db, "invoices", invoiceId);
+    await updateDoc(invoiceRef, {
+      status: "Partially Paid",
+      partialPaidAmount: amount,
+      updatedAt: serverTimestamp(),
+    });
+    return true;
+  } catch (err) {
+    console.error("Error updating invoice partial payment:", err);
+    throw err;
+  }
+};
 const getInvoicesByUser = async (uid: string) => {
   try {
     const invoicesQuery = query(collection(db, "invoices"), where("uid", "==", uid));
@@ -134,6 +162,8 @@ export {
   logInWithEmailAndPassword,
   registerWithEmailAndPassword,
   saveInvoice,
+  updateInvoiceStatus,
+  updateInvoicePartial,
   getInvoicesByUser,
   sendPasswordReset,
   logout,

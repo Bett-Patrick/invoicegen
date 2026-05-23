@@ -31,6 +31,7 @@ interface FormInfo {
   date: string;
   terms: string;
   notes: string;
+  status?: string;
   discountType: string;
   discount: number;
   total: number;
@@ -41,6 +42,7 @@ interface FormInfo {
   currency: string;
   locale: string;
   account: string;
+  partialPaidAmount?: number;
 }
 interface Description {
   description: string;
@@ -127,6 +129,8 @@ interface FormContextType {
   setFormInfo: React.Dispatch<React.SetStateAction<FormInfo>>;
   description: Description[];
   setDescription: React.Dispatch<React.SetStateAction<Description[]>>;
+  currentInvoiceId: string | null;
+  setCurrentInvoiceId: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export const FormContext = createContext<FormContextType>({
@@ -144,6 +148,8 @@ export const FormContext = createContext<FormContextType>({
   setFormInfo: () => {},
   description: [],
   setDescription: () => {},
+  currentInvoiceId: null,
+  setCurrentInvoiceId: () => {},
 });
 
 const FormContextProvider = ({ children }: any) => {
@@ -154,6 +160,7 @@ const FormContextProvider = ({ children }: any) => {
   const [todata, setTodata] = useState(initialToData);
   const [forminfo, setFormInfo] = useState(initialFormInfo);
   const [description, setDescription] = useState([initialdescription]);
+  const [currentInvoiceId, setCurrentInvoiceId] = useState<string | null>(null);
 
   useEffect(() => {
     const subTotal = description.reduce(
@@ -177,6 +184,13 @@ const FormContextProvider = ({ children }: any) => {
     forminfo.mainTax,
     description,
   ]);
+
+  // Auto-set invoice title to "<Client Name> Invoice" when client name changes
+  useEffect(() => {
+    if (todata && todata.name) {
+      setFormInfo((prev) => ({ ...prev, title: `${todata.name} Invoice` }));
+    }
+  }, [todata, setFormInfo]);
   return (
     <FormContext.Provider
       value={{
@@ -194,6 +208,8 @@ const FormContextProvider = ({ children }: any) => {
         setFormInfo,
         description,
         setDescription,
+        currentInvoiceId,
+        setCurrentInvoiceId,
       }}
     >
       {children}
