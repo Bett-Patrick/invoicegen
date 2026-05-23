@@ -56,7 +56,7 @@ export const generateInvoicePdf = async ({ forminfo, todata, fromdata, descripti
       },
       // The products you would like to see on your invoice
       // Total values are being calculated automatically
-      products: description.map((desc) => ({
+      products: description.map((desc: any) => ({
         quantity: desc.qty,
         description: `<p style="margin-bottom: 0px;">${desc.description}</p>
         ${
