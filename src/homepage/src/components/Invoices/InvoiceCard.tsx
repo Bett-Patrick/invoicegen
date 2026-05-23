@@ -7,7 +7,7 @@ import { generateInvoicePdf } from "../../../../components/Sidebar/components/Do
 
 const InvoiceCard = () => {
   let number = [0];
-  const { forminfo, todata, fromdata, description, currentInvoiceId, setCurrentInvoiceId, setFormInfo } = useContext(FormContext);
+  const { forminfo, todata, fromdata, description, currentInvoiceId, setFormInfo } = useContext(FormContext);
   number = forminfo?.terms === "none" ? [0] : (forminfo?.terms?.match(/\d+/g) || []).map(Number);
   console.log(number);
   const normalizeDate = (d: any) => {
